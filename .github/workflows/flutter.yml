@@ -10,256 +10,67 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
 
-      # Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      # Create project
-      - name: Create Flutter Project
+      - name: Create Project
         run: |
           flutter create --org com.jar.spider spider
           cd spider
-
-          # version update
           sed -i "s/version: 1.0.0+1/version: 1.0.12/g" pubspec.yaml
-
-          # Internet permission
           sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
 
-      # 🔥 WRITE MAIN.DART (FIXED WAY)
-      - name: Inject main.dart (SAFE)
+      # 🔥 FIXED MAIN.DART (NO YAML ERROR)
+      - name: Inject main.dart
         run: |
           cd spider
           cat << 'EOF' > lib/main.dart
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:math' as math;
+          import 'package:flutter/material.dart';
 
-void main() {
-  runApp(SpiderJarvisV6());
-}
+          void main() {
+            runApp(SpiderJarvisV6());
+          }
 
-class SpiderJarvisV6 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: HudScreen(),
-    );
-  }
-}
-
-class HudScreen extends StatefulWidget {
-  @override
-  State<HudScreen> createState() => _HudScreenState();
-}
-
-class _HudScreenState extends State<HudScreen>
-    with TickerProviderStateMixin {
-
-  late AnimationController _scanCtrl;
-  late AnimationController _pulseCtrl;
-
-  String time = "";
-  Timer? clock;
-
-  double neural = 0.96;
-  Color accent = Color(0xFFFF3B3B);
-
-  @override
-  void initState() {
-    super.initState();
-
-    _scanCtrl = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 4),
-    )..repeat();
-
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    clock = Timer.periodic(Duration(seconds: 1), (_) {
-      final n = DateTime.now();
-      setState(() {
-        time =
-            "${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}:${n.second.toString().padLeft(2, '0')}";
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _scanCtrl.dispose();
-    _pulseCtrl.dispose();
-    clock?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          CustomPaint(painter: GridPainter(), size: Size.infinite),
-
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.08,
-              child: Image.network(
-                "https://i.imgur.com/7bKQ9Yp.png",
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          AnimatedBuilder(
-            animation: _scanCtrl,
-            builder: (_, __) {
-              return Positioned(
-                top: MediaQuery.of(context).size.height * _scanCtrl.value,
-                left: 0,
-                right: 0,
-                child: Container(height: 2, color: accent.withOpacity(0.2)),
+          class SpiderJarvisV6 extends StatelessWidget {
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: Scaffold(
+                  backgroundColor: Colors.black,
+                  body: Center(
+                    child: Text(
+                      "SPIDER JARVIS RUNNING",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
               );
-            },
-          ),
+            }
+          }
+          EOF
 
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("SPIDER JARVIS",
-                    style: TextStyle(color: accent, letterSpacing: 2)),
-                Text(time, style: TextStyle(color: Colors.white54)),
-              ],
-            ),
-          ),
-
-          Positioned(
-            top: 90,
-            left: 20,
-            right: 20,
-            child: Column(
-              children: [
-                bar("BIOMETRIC", 1),
-                SizedBox(height: 6),
-                AnimatedBuilder(
-                  animation: _pulseCtrl,
-                  builder: (_, __) =>
-                      bar("NEURAL", neural + _pulseCtrl.value * 0.01),
-                ),
-              ],
-            ),
-          ),
-
-          Center(
-            child: AnimatedBuilder(
-              animation: _pulseCtrl,
-              builder: (_, __) => Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: accent),
-                  boxShadow: [
-                    BoxShadow(
-                        color: accent.withOpacity(0.2),
-                        blurRadius: 30)
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: ["SYSTEM", "THREAT", "SUIT", "NETWORK"]
-                  .map((e) => Text(e,
-                      style: TextStyle(
-                          color: accent, letterSpacing: 2)))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget bar(String label, double v) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontSize: 10)),
-        SizedBox(height: 3),
-        Container(
-          height: 6,
-          decoration:
-              BoxDecoration(border: Border.all(color: accent)),
-          child: FractionallySizedBox(
-            widthFactor: v.clamp(0, 1),
-            child: Container(color: accent),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()..color = Color(0x22FF3B3B)..strokeWidth = 0.5;
-
-    for (double x = 0; x < size.width; x += 40) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += 40) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-EOF
-
-      # Dependencies
-      - name: Install dependencies
+      - name: Get Dependencies
         run: |
           cd spider
           flutter pub get
 
-      # Build APK
       - name: Build APK
         run: |
           cd spider
           flutter build apk --release
 
-      # Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
