@@ -7,72 +7,37 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # ✅ Checkout your real project (important)
+      - name: Checkout repo
         uses: actions/checkout@v4
 
+      # ✅ Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
 
+      # ✅ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Create Project
-        run: |
-          flutter create --org com.jar.spider spider
-          cd spider
-          sed -i "s/version: 1.0.0+1/version: 1.0.12/g" pubspec.yaml
-          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
+      # ✅ Get dependencies
+      - name: Install dependencies
+        run: flutter pub get
 
-      # 🔥 FIXED MAIN.DART (NO YAML ERROR)
-      - name: Inject main.dart
-        run: |
-          cd spider
-          cat << 'EOF' > lib/main.dart
-          import 'package:flutter/material.dart';
-
-          void main() {
-            runApp(SpiderJarvisV6());
-          }
-
-          class SpiderJarvisV6 extends StatelessWidget {
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: Scaffold(
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: Text(
-                      "SPIDER JARVIS RUNNING",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ),
-              );
-            }
-          }
-          EOF
-
-      - name: Get Dependencies
-        run: |
-          cd spider
-          flutter pub get
-
+      # ✅ Build APK
       - name: Build APK
-        run: |
-          cd spider
-          flutter build apk --release
+        run: flutter build apk --release
 
+      # ✅ Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: spider-apk
-          path: spider/build/app/outputs/flutter-apk/app-release.apk
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
