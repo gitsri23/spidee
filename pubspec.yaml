@@ -1,0 +1,57 @@
+name: spider
+description: Spider Jarvis Advanced HUD System
+publish_to: 'none'
+
+version: 1.0.12+12
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+
+  # Voice AI
+  speech_to_text: ^6.6.2
+  flutter_tts: ^4.0.2
+
+  # Network / AI APIs
+  http: ^1.2.1
+
+  # Contacts + Call
+  flutter_contacts: ^1.1.9+2
+  url_launcher: ^6.3.0
+
+  # Bluetooth (ESP32 control future)
+  flutter_blue_plus: ^1.35.5
+
+  # Permissions (important for Android 13+)
+  permission_handler: ^11.3.1
+
+  # Utils
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+  # App icon generator
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  # Optional assets (if you add later)
+  assets:
+    - assets/
+
+# 🔥 App Icon Config
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo.png"
