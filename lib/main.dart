@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:device_apps/device_apps.dart';
 import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
-void main() => runApp(MaterialApp(home: IOSLauncher(), debugShowCheckedModeBanner: false));
+void main() {
+  runApp(const MaterialApp(
+    home: IOSLauncher(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
 
 class IOSLauncher extends StatefulWidget {
+  const IOSLauncher({super.key});
+
   @override
-  _IOSLauncherState createState() => _IOSLauncherState();
+  State<IOSLauncher> createState() => _IOSLauncherState();
 }
 
 class _IOSLauncherState extends State<IOSLauncher> {
-  List<Application> apps = [];
+  List<AppInfo> apps = [];
 
   @override
   void initState() {
@@ -19,58 +26,64 @@ class _IOSLauncherState extends State<IOSLauncher> {
     _loadApps();
   }
 
-  // ఫోన్ లో ఉన్న యాప్స్ అన్నింటినీ లోడ్ చేస్తుంది
-  _loadApps() async {
-    List<Application> _apps = await DeviceApps.getInstalledApplications(
-      includeAppIcons: true,
-      onlyAppsWithLaunchIntent: true,
-      includeSystemApps: true,
-    );
-    setState(() => apps = _apps);
+  // ఫోన్‌లోని యాప్స్ లిస్ట్‌ని లోడ్ చేస్తుంది
+  Future<void> _loadApps() async {
+    List<AppInfo> installedApps = await InstalledApps.getInstalledApps();
+    setState(() {
+      apps = installedApps;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
           image: DecorationImage(
-            image: NetworkImage("https://your-wallpaper-url.com/ios18.jpg"), // iOS 18 వాల్‌పేపర్ లింక్ ఇవ్వండి
+            // ఇక్కడ మీరు ఏదైనా iOS 18 వాల్‌పేపర్ లింక్ ఇచ్చుకోవచ్చు
+            image: NetworkImage("https://images.wallpapersden.com/image/download/ios-18-stock-wallpaper_bWlsam6UmZqaraWkpJRmbmdlrWZlbWU.jpg"),
             fit: BoxFit.cover,
           ),
         ),
         child: Column(
           children: [
-            SizedBox(height: 50), // స్టేటస్ బార్ కోసం స్పేస్
+            const SizedBox(height: 60), // స్టేటస్ బార్ స్పేస్
             Expanded(
               child: GridView.builder(
-                padding: EdgeInsets.all(20),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, 
-                  mainAxisSpacing: 25, 
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 25,
                   crossAxisSpacing: 20,
                   childAspectRatio: 0.8,
                 ),
                 itemCount: apps.length,
                 itemBuilder: (context, index) {
-                  Application app = apps[index];
+                  AppInfo app = apps[index];
                   return GestureDetector(
-                    onTap: () => DeviceApps.openApp(app.packageName),
+                    onTap: () => InstalledApps.startApp(app.packageName!),
                     child: Column(
                       children: [
-                        // ఐకాన్ డిజైన్ (Rounded Corners like iOS)
+                        // iOS లాంటి రౌండెడ్ ఐకాన్
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: app is ApplicationWithIcon 
-                              ? Image.memory(app.icon, width: 60) 
-                              : Icon(Icons.android, size: 60),
+                          borderRadius: BorderRadius.circular(16),
+                          child: app.icon != null 
+                              ? Image.memory(app.icon!, width: 60, height: 60)
+                              : const Icon(Icons.apps, size: 60, color: Colors.white),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          app.appName,
+                          app.name ?? "",
                           maxLines: 1,
-                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            shadows: [Shadow(blurRadius: 4, color: Colors.black)],
+                          ),
                         ),
                       ],
                     ),
@@ -85,29 +98,38 @@ class _IOSLauncherState extends State<IOSLauncher> {
     );
   }
 
-  // iOS Dock (కింద ఉండే గ్లాస్ బార్)
+  // iOS 18 స్టైల్ గ్లాస్ ఫినిష్ డొక్
   Widget _buildDock() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 30),
       child: GlassmorphicContainer(
         width: MediaQuery.of(context).size.width * 0.9,
         height: 90,
         borderRadius: 30,
-        blur: 20,
+        blur: 15,
         alignment: Alignment.center,
-        border: 2,
+        border: 1,
         linearGradient: LinearGradient(
-            colors: [Colors.white.withOpacity(0.2), Colors.white.withOpacity(0.1)]),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.2),
+            Colors.white.withOpacity(0.05),
+          ],
+        ),
         borderGradient: LinearGradient(
-            colors: [Colors.white.withOpacity(0.5), Colors.white.withOpacity(0.2)]),
+          colors: [
+            Colors.white.withOpacity(0.5),
+            Colors.white.withOpacity(0.2),
+          ],
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-             // ఇక్కడ మీకు కావాల్సిన మెయిన్ యాప్స్ ఐకాన్స్ పెట్టుకోవచ్చు
-             _dockIcon(Icons.phone, Colors.green),
-             _dockIcon(Icons.message, Colors.blue),
-             _dockIcon(Icons.camera_alt, Colors.grey),
-             _dockIcon(Icons.language, Colors.blueAccent),
+            _dockIcon(Icons.phone, Colors.green),
+            _dockIcon(Icons.chat_bubble, Colors.blue),
+            _dockIcon(Icons.camera_alt, Colors.grey),
+            _dockIcon(Icons.public, Colors.blueAccent),
           ],
         ),
       ),
@@ -116,8 +138,12 @@ class _IOSLauncherState extends State<IOSLauncher> {
 
   Widget _dockIcon(IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(15)),
+      width: 55,
+      height: 55,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Icon(icon, color: Colors.white, size: 30),
     );
   }
