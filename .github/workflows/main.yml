@@ -1,25 +1,49 @@
-name: Build Flutter APK
+name: Build Flutter iOS Launcher APK
 
+# ఎప్పుడు రన్ అవ్వాలి (Triggers)
 on:
   push:
     branches: [ main ] # మెయిన్ బ్రాంచ్‌లో కోడ్ పుష్ చేసినప్పుడు
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # మాన్యువల్‌గా రన్ చేయడానికి బటన్ ఇస్తుంది
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      # 1. కోడ్‌ని తీసుకోవడం (Updated to v4)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Java సెటప్ (Required for Android build - Updated to v4)
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'zulu' # స్థిరమైన డిస్ట్రిబ్యూషన్
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+
+      # 3. Flutter సెటప్ (Updated to v2)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+          flutter-version: '3.19.0' # లేదా మీ సిస్టమ్‌లో ఉన్న వెర్షన్ ఇవ్వండి
+          channel: 'stable'
+
+      # 4. డిపెండెన్సీస్ డౌన్‌లోడ్
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. APK బిల్డ్ చేయడం (Release Mode)
+      - name: Build APK
+        run: flutter build apk --release
+
+      # 6. బిల్డ్ అయిన APKని అప్‌లోడ్ చేయడం (Updated to v4 - ఇక్కడే మీకు ఎర్రర్ వచ్చింది)
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: ios-launcher-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error # ఫైల్ లేకపోతే ఎర్రర్ చూపిస్తుంది
+          retention-days: 7 # 7 రోజుల వరకు GitHubలో ఉంటుంది
