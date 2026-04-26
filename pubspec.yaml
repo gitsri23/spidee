@@ -1,7 +1,8 @@
 name: spidee
 description: "A professional iOS 18 style launcher developed in Flutter."
+publish_to: 'none'
 
-# బిల్డ్ ఫెయిల్ అవ్వకుండా ఉండటానికి ఇది అత్యంత ముఖ్యం
+# బిల్డ్ సక్సెస్ అవ్వడానికి ఈ వెర్షన్స్ చాలా ముఖ్యం
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
@@ -12,9 +13,8 @@ dependencies:
   # iOS ఐకాన్స్ మరియు డిజైన్ కోసం
   cupertino_icons: ^1.0.8
   
-  # ఫోన్‌లోని యాప్స్ లిస్ట్ పొందడానికి మరియు ఓపెన్ చేయడానికి
-  device_apps: ^2.2.0
-  installed_apps: ^1.4.1
+  # ఫోన్‌లోని యాప్స్ లిస్ట్ పొందడానికి మరియు ఓపెన్ చేయడానికి (లేటెస్ట్ వెర్షన్)
+  installed_apps: ^1.6.0
   
   # iOS 18 బ్లర్ (Frosted Glass) ఎఫెక్ట్ కోసం
   glassmorphism: ^3.0.0
@@ -26,13 +26,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # లింటింగ్ రూల్స్
+  # కోడ్ క్వాలిటీ కోసం
   flutter_lints: ^3.0.0
 
-# అసెట్స్ (ఇమేజెస్/వాల్‌పేపర్స్) ఇక్కడ యాడ్ చేసుకోవాలి
 flutter:
   uses-material-design: true
 
-  # మీరు ఒకవేళ లోకల్ ఇమేజెస్ వాడుతుంటే ఇక్కడ అన్‌కామెంట్ చేయండి
+  # మీరు ఒకవేళ లోకల్ ఇమేజెస్ వాడుతుంటే ఇక్కడ అసెట్స్ యాడ్ చేయండి
   # assets:
   #   - assets/images/ios18_wallpaper.jpg
